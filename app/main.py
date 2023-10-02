@@ -1,18 +1,20 @@
 from fastapi import FastAPI
-import random
+from classifier import classifier, classify
+from Image import GetAlbumArt
 
 app = FastAPI()
 
-@app.get('/')
+@app.get('/', status_code=200)
 async def root():
-    return {'testData': 'Mp3 Automated Tag Editor up and running!!!', 'code': '200'}
+    return {"status": 200, 'log': 'Mp3 Automated Tag Editor up and running!!!'}
 
 @app.get('/api/metadata/{fileName}')
-async def getMetadata(fileName: str, fileCount: int):
-    successfulQueries: int = 8
-    unSuccessfulQueries: int = 2
-    return {'fileName': fileName, 'fileCount': fileCount, 'successfulQueries': successfulQueries, 'unSuccessfulQueries': unSuccessfulQueries}
+async def getMetadata(fileName: str):
+    data = await classifier(fileName)
+    #Format return of data accordingly
+    return {data}
 
 @app.get('/api/album/{albumName}')
 async def getAlbumArt(albumName: str, artistName: str, res: int):
-    return {'albumName': albumName, 'artistName': artistName, 'res': res}
+    data = await GetAlbumArt.getAlbumArt(albumName, artistName, res)
+    return data
