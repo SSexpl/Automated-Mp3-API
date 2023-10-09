@@ -12,7 +12,7 @@ async def root():
 async def getMetadata(fileName: str):
     data = await classifier(fileName)
     #Format return of data accordingly
-    return {data}
+    return data
 
 @app.get('/api/album/{albumName}')
 async def getAlbumArt(albumName: str, artistName: str, res: int):
