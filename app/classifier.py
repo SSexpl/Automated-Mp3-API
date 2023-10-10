@@ -7,7 +7,6 @@ from Controllers import GooglePage
 from Controllers import MusicApi
 from Controllers import MusicBrainz
 from Controllers import MusicStory
-from Controllers import OneMusicApi
 from Controllers import OpenAi
 from Controllers import Shazam
 from Controllers import Spotify
@@ -54,14 +53,14 @@ async def classifier(query: str):
     # wikipedia:      str = await Wikipedia.getFields(artist, title)
 
     # #Classify each value for most probable solution
-    # album:          str = classify([deezer[2], discogs[2], ganna[2], googleSPage[2], musicApi[2], musicBrainz[2], musicStory[2], oneMusic[2], openAi[2], shazam[2], spotify[2], audioData[2], audioDb[2], wikipedia[2]]) 
-    # year:           str = classify([deezer[3], discogs[3], ganna[3], googleSPage[3], musicApi[3], musicBrainz[3], musicStory[3], oneMusic[3], openAi[3], shazam[3], spotify[3], audioData[3], audioDb[3], wikipedia[3]]) 
-    # track:          str = classify([deezer[4], discogs[4], ganna[4], googleSPage[4], musicApi[4], musicBrainz[4], musicStory[4], oneMusic[4], openAi[4], shazam[4], spotify[4], audioData[4], audioDb[4], wikipedia[4]]) 
-    # genre:          str = classify([deezer[5], discogs[5], ganna[5], googleSPage[5], musicApi[5], musicBrainz[5], musicStory[5], oneMusic[5], openAi[5], shazam[5], spotify[5], audioData[5], audioDb[5], wikipedia[5]]) 
-    # comments:       str = classify([deezer[6], discogs[6], ganna[6], googleSPage[6], musicApi[6], musicBrainz[6], musicStory[6], oneMusic[6], openAi[6], shazam[6], spotify[6], audioData[6], audioDb[6], wikipedia[6]]) 
-    # albumArtist:    str = classify([deezer[7], discogs[7], ganna[7], googleSPage[7], musicApi[7], musicBrainz[7], musicStory[7], oneMusic[7], openAi[7], shazam[7], spotify[7], audioData[7], audioDb[7], wikipedia[7]]) 
-    # composer:       str = classify([deezer[8], discogs[8], ganna[8], googleSPage[8], musicApi[8], musicBrainz[8], musicStory[8], oneMusic[8], openAi[8], shazam[8], spotify[8], audioData[8], audioDb[8], wikipedia[8]]) 
-    # discno:         int = classify([deezer[9], discogs[9], ganna[9], googleSPage[9], musicApi[9], musicBrainz[9], musicStory[9], oneMusic[9], openAi[9], shazam[9], spotify[9], audioData[9], audioDb[9], wikipedia[9]]) 
+    # album:          str = classify([deezer[2], discogs[2], ganna[2], googleSPage[2], musicApi[2], musicBrainz[2], musicStory[2], oneMusic[2], openAi[2], palm[2] shazam[2], spotify[2], audioData[2], audioDb[2], wikipedia[2]]) 
+    # year:           str = classify([deezer[3], discogs[3], ganna[3], googleSPage[3], musicApi[3], musicBrainz[3], musicStory[3], oneMusic[3], openAi[3], palm[3] shazam[3], spotify[3], audioData[3], audioDb[3], wikipedia[3]]) 
+    # track:          str = classify([deezer[4], discogs[4], ganna[4], googleSPage[4], musicApi[4], musicBrainz[4], musicStory[4], oneMusic[4], openAi[4], palm[4] shazam[4], spotify[4], audioData[4], audioDb[4], wikipedia[4]]) 
+    # genre:          str = classify([deezer[5], discogs[5], ganna[5], googleSPage[5], musicApi[5], musicBrainz[5], musicStory[5], oneMusic[5], openAi[5], palm[5] shazam[5], spotify[5], audioData[5], audioDb[5], wikipedia[5]]) 
+    # comments:       str = classify([deezer[6], discogs[6], ganna[6], googleSPage[6], musicApi[6], musicBrainz[6], musicStory[6], oneMusic[6], openAi[6], palm[6] shazam[6], spotify[6], audioData[6], audioDb[6], wikipedia[6]]) 
+    # albumArtist:    str = classify([deezer[7], discogs[7], ganna[7], googleSPage[7], musicApi[7], musicBrainz[7], musicStory[7], oneMusic[7], openAi[7], palm[7] shazam[7], spotify[7], audioData[7], audioDb[7], wikipedia[7]]) 
+    # composer:       str = classify([deezer[8], discogs[8], ganna[8], googleSPage[8], musicApi[8], musicBrainz[8], musicStory[8], oneMusic[8], openAi[8], palm[8] shazam[8], spotify[8], audioData[8], audioDb[8], wikipedia[8]]) 
+    # discno:         int = classify([deezer[9], discogs[9], ganna[9], googleSPage[9], musicApi[9], musicBrainz[9], musicStory[9], oneMusic[9], openAi[9], palm[9] shazam[9], spotify[9], audioData[9], audioDb[9], wikipedia[9]]) 
 
     # successfulFieldCalls: int = [deezer[10], discogs[10], ganna[10], googleSPage[10], musicApi[10], musicBrainz[10], musicStory[10], oneMusic[10], openAi[10], shazam[10], spotify[10], audioData[10], audioDb[10], wikipedia[10]]
 
