@@ -48,7 +48,7 @@ async def classifier(query: str):
     # openAi:         str = await OpenAi.getFields(artist, title)
     palm:           str = await Palm.getFields(artist, title)
     # shazam:         str = await Shazam.getFields(artist, title)
-    # spotify:        str = await Spotify.getFields(artist, title)
+    spotify:        str = await Spotify.getFields(artist, title)
     # audioData:      str = await TheAudioData.getFields(artist, title)
     # audioDb:        str = await TheAudioDB.getFields(artist, title)
     # wikipedia:      str = await Wikipedia.getFields(artist, title)
@@ -70,7 +70,7 @@ async def classifier(query: str):
 
     # return artist, title, album, year, track, genre, comments, albumArtist, composer, discno,successfulFieldCalls, successfulMechanismCalls, successfulQueries
 
-    return {"artist": artist,"title": title, "data":palm}
+    return {"artist": artist,"title": title, "palm":palm, "spotify": spotify}
 
 def classify(arr):
     # Use fuzzy string searching or vector string similarity matching
