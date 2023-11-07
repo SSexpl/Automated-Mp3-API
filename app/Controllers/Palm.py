@@ -37,6 +37,8 @@ async def getFields(artist, title):
         if(value=='None' or value=='' or value=='NaN'): continue
         successfulFieldCalls += 1
 
-    dict["successfulCalls"]=successfulFieldCalls+2 #add artist name and title
+    dict["successfulCalls"]: int =successfulFieldCalls+2 #add artist name and title
+    dict["artist"] = artist
+    dict["title"] = title
 
     return dict
