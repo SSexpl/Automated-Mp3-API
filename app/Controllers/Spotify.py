@@ -15,7 +15,7 @@ async def getFields(artist, title):
 
     successfulFieldCalls = 2 # artist and title
     dict = {}
-    dict['composer'] = "" # unavailable in spotipy
+    dict['composer'] = None # unavailable in spotipy
     query = title + " " + artist
 
     try:

@@ -37,7 +37,7 @@ async def getFields(artist, title):
             dict['title'] = title
         successfulFieldCalls += 1
 
-        dict['track'] = dict['genre'] = dict['comments'] = dict['disc_number'] = None
+        dict['track'] = dict['genre'] = dict['comments'] = dict['disc-number'] = None
         
     except:
         print("Err")

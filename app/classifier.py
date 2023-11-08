@@ -15,6 +15,7 @@ from Controllers import TheAudioDB
 from Controllers import Wikipedia
 from Controllers import Palm
 from Controllers import YoutubeMusic
+from pprint import pprint
 
 # Total Number of possible Subqueries = 14 mechanisms * 10 fields = 80
 # TOTAL_FIELDS: int = 10
@@ -53,9 +54,9 @@ async def classifier(query: str):
 
     # async multi-call
     results = await asyncio.gather(
-        Spotify.getFields(artist, title), 
+        Spotify.getFields(artist, title),
         Palm.getFields(artist, title),
-        YoutubeMusic.getFields(artist, title)
+        YoutubeMusic.getFields(artist, title),
     )
 
     # #Classify each value for most probable solution
@@ -67,16 +68,17 @@ async def classifier(query: str):
     # albumArtist:    str = classify([deezer[7], discogs[7], ganna[7], googleSPage[7], musicApi[7], musicBrainz[7], musicStory[7], oneMusic[7], openAi[7], palm[7] shazam[7], spotify[7], audioData[7], audioDb[7], wikipedia[7]])
     # composer:       str = classify([deezer[8], discogs[8], ganna[8], googleSPage[8], musicApi[8], musicBrainz[8], musicStory[8], oneMusic[8], openAi[8], palm[8] shazam[8], spotify[8], audioData[8], audioDb[8], wikipedia[8]])
     # discno:         int = classify([deezer[9], discogs[9], ganna[9], googleSPage[9], musicApi[9], musicBrainz[9], musicStory[9], oneMusic[9], openAi[9], palm[9] shazam[9], spotify[9], audioData[9], audioDb[9], wikipedia[9]])
+    classifiedResults = await classify(results)
 
     calls: int = {}
     # calls["successfulFieldCalls"] = palm.get("successfulCalls")
     calls["successfulMechanismCalls"] = 0
     calls["successfulQueries"] = 0
 
-    totalCalls = {}
-    totalCalls["totalFieldCalls"] = 0
-    totalCalls["totalMechanismCalls"] = 0
-    totalCalls["totalSuccessfulCalls"] = 0
+    # totalCalls = {} # App Side
+    # totalCalls["totalFieldCalls"] = 0
+    # totalCalls["totalMechanismCalls"] = 0
+    # totalCalls["totalSuccessfulCalls"] = 0
 
     # successfulFieldCalls: int = [deezer[10], discogs[10], ganna[10], googleSPage[10], musicApi[10], musicBrainz[10], musicStory[10], oneMusic[10], openAi[10], shazam[10], spotify[10], audioData[10], audioDb[10], wikipedia[10]]
     # successfulMechanismCalls: int = 14 # Add 1 for every controller that returns atleast 1 successful sub-field
@@ -88,13 +90,114 @@ async def classifier(query: str):
     return {
         "artist": artist,
         "title": title,
-        "data": results,
+        "data": classifiedResults,
         "successfulCalls": calls,
-        "totalCalls": totalCalls,
+        # "totalCalls": totalCalls,
     }
 
 
-def classify(arr):
+async def classify(dict):
+    arrays = {
+        "artist": [],
+        "title": [],
+        "album": [],
+        "year": [],
+        "track": [],
+        "genre": [],
+        "comments": [],
+        "albumArtist": [],
+        "composer": [],
+        "discno": [],
+    }
+    finClassifiedResult = {}
+    totalSuccesfulCalls = 0
+
+    for x in dict:
+        if x.get("artist") != None:
+            totalSuccesfulCalls += 1
+            arrays["artist"].append(x.get("artist"))
+
+        if x.get("title") != None:
+            totalSuccesfulCalls += 1
+            arrays["title"].append(x.get("title"))
+
+        if x.get("album") != None:
+            totalSuccesfulCalls += 1
+            arrays["album"].append(x.get("album"))
+
+        if x.get("year") != None:
+            totalSuccesfulCalls += 1
+            arrays["year"].append(int(x.get("year")))
+
+        if x.get("track") != None:
+            totalSuccesfulCalls += 1
+            arrays["track"].append(int(x.get("track")))
+
+        if x.get("comments") != None:
+            totalSuccesfulCalls += 1
+            arrays["comments"].append(x.get("comments"))
+
+        if x.get("album-artist") != None:
+            totalSuccesfulCalls += 1
+            arrays["albumArtist"].append(x.get("album-artist"))
+
+        if x.get("composer") != None:
+            totalSuccesfulCalls += 1
+            arrays["composer"].append(x.get("composer"))
+
+        if x.get("disc-number") != None:
+            totalSuccesfulCalls += 1
+            arrays["discno"].append(int(x.get("disc-number")))
+
+        if x.get("genre") != None:
+            if type(x.get("genre")) == list:
+                for vals in x.get("genre"):
+                    arrays["genre"].append(vals)
+                totalSuccesfulCalls += 1
+            else:
+                arrays["genre"].append(x.get("genre"))
+                totalSuccesfulCalls += 1
+
+        if x.get("successfulCalls") == 10:
+            finClassifiedResult["successfulMechanismCalls"] += 1
+
+    # test1 = await classifyArray(arrays.get('artist'), "str"),
+    # test1 = await classifyArray(arrays.get('title'), "str"),
+    # test1 = await classifyArray(arrays.get('album'), "str"),
+    # test1 = await classifyArray(arrays.get('year'), "num"),
+    # test1 = await classifyArray(arrays.get('track'), "num"),
+    # test1 = await classifyArray(arrays.get('comments'), "str"),
+    # test1 = await classifyArray(arrays.get('album-artist'), "str"),
+    # test1 = await classifyArray(arrays.get('composer'), "str"),
+    # test1 = await classifyArray(arrays.get('disc-number'), "num"),
+    # test1 = await classifyArray(arrays.get('genre'), "str")
+
+    data = await asyncio.gather(
+        classifyArray(arrays.get("artist"), "str", "artist"),
+        classifyArray(arrays.get("title"), "str", "title"),
+        classifyArray(arrays.get("album"), "str", "album"),
+        classifyArray(arrays.get("year"), "num", "year"),
+        classifyArray(arrays.get("track"), "num", "track"),
+        classifyArray(arrays.get("comments"), "str", "comments"),
+        classifyArray(arrays.get("albumArtist"), "str", "albumArtist"),
+        classifyArray(arrays.get("composer"), "str", "composer"),
+        classifyArray(arrays.get("discno"), "num", "discno"),
+        classifyArray(arrays.get("genre"), "str", "genre"),
+    )
+
+    finClassifiedResult["totalSuccesfulCalls"] = totalSuccesfulCalls
+    finClassifiedResult["data"] = data
+
+    return finClassifiedResult
+
+
+async def classifyArray(array, type, key):
     # Use fuzzy string searching or vector string similarity matching
-    finClassifiedValue = 0
-    return finClassifiedValue
+
+    # Iterate thru each value check its ratio with the others. One with highest value wins - use fuzzy search
+    # - if succesffuly classified - +1 to succesffuly classified
+    # - if cannot be determined (like 4, 5) - return suggested value + error code yellow (medium)
+    # - if cannot be classified (NaN) - return no value w/ error code red
+
+    print(array)
+    return (array, type)
