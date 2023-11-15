@@ -1,4 +1,11 @@
 from Regex.Regex import getArtistandTitle
+from thefuzz import fuzz, process
+import difflib
+import numpy as np
+from pandas import DataFrame
+from scipy.spatial.distance import cdist
+from Levenshtein import ratio
+
 import asyncio
 from Controllers import Deezer
 from Controllers import Discogs
@@ -68,12 +75,14 @@ async def classifier(query: str):
     # albumArtist:    str = classify([deezer[7], discogs[7], ganna[7], googleSPage[7], musicApi[7], musicBrainz[7], musicStory[7], oneMusic[7], openAi[7], palm[7] shazam[7], spotify[7], audioData[7], audioDb[7], wikipedia[7]])
     # composer:       str = classify([deezer[8], discogs[8], ganna[8], googleSPage[8], musicApi[8], musicBrainz[8], musicStory[8], oneMusic[8], openAi[8], palm[8] shazam[8], spotify[8], audioData[8], audioDb[8], wikipedia[8]])
     # discno:         int = classify([deezer[9], discogs[9], ganna[9], googleSPage[9], musicApi[9], musicBrainz[9], musicStory[9], oneMusic[9], openAi[9], palm[9] shazam[9], spotify[9], audioData[9], audioDb[9], wikipedia[9]])
-    classifiedResults = await classify(results)
+    classifiedResults, totalQueries, totalMechanismCalls = await classify(results)
 
     calls: int = {}
     # calls["successfulFieldCalls"] = palm.get("successfulCalls")
-    calls["successfulMechanismCalls"] = 0
-    calls["successfulQueries"] = 0
+    calls["successfulMechanismCalls"] = totalMechanismCalls
+    calls["totalMechanismCalls"] = len(results)
+    calls["successfulQueries"] = totalQueries
+    calls["totalQueries"] = len(results) * 10
 
     # totalCalls = {} # App Side
     # totalCalls["totalFieldCalls"] = 0
@@ -91,7 +100,7 @@ async def classifier(query: str):
         "artist": artist,
         "title": title,
         "data": classifiedResults,
-        "successfulCalls": calls,
+        "calls": calls,
         # "totalCalls": totalCalls,
     }
 
@@ -111,6 +120,7 @@ async def classify(dict):
     }
     finClassifiedResult = {}
     totalSuccesfulCalls = 0
+    totalMechanismCalls = 0
 
     for x in dict:
         if x.get("artist") != None:
@@ -159,39 +169,75 @@ async def classify(dict):
                 totalSuccesfulCalls += 1
 
         if x.get("successfulCalls") == 10:
-            finClassifiedResult["successfulMechanismCalls"] += 1
+            totalMechanismCalls += 1
 
-    # test1 = await classifyArray(arrays.get('artist'), "str"),
-    # test1 = await classifyArray(arrays.get('title'), "str"),
-    # test1 = await classifyArray(arrays.get('album'), "str"),
-    # test1 = await classifyArray(arrays.get('year'), "num"),
-    # test1 = await classifyArray(arrays.get('track'), "num"),
-    # test1 = await classifyArray(arrays.get('comments'), "str"),
-    # test1 = await classifyArray(arrays.get('album-artist'), "str"),
-    # test1 = await classifyArray(arrays.get('composer'), "str"),
-    # test1 = await classifyArray(arrays.get('disc-number'), "num"),
-    # test1 = await classifyArray(arrays.get('genre'), "str")
+    # data = []
+
+    # data.append(await classifyArrayFuzzy(arrays.get("artist"), "str", "artist"))
+    # data.append(await classifyArrayFuzzy(arrays.get("title"), "str", "title"))
+    # data.append(await classifyArrayFuzzy(arrays.get("album"), "str", "album"))
+    # data.append(await classifyArrayFuzzy(arrays.get("year"), "num", "year"))
+    # data.append(await classifyArrayFuzzy(arrays.get("track"), "num", "track"))
+    # data.append(await classifyArrayFuzzy(arrays.get("comments"), "str", "comments"))
+    # data.append(await classifyArrayFuzzy(arrays.get("albumArtist"), "str", "albumArtist"))
+    # data.append(await classifyArrayFuzzy(arrays.get("composer"), "str", "composer"))
+    # data.append(await classifyArrayFuzzy(arrays.get("discno"), "num", "discno"))
+    # data.append(await classifyArrayFuzzy(arrays.get("genre"), "str", "genre"))
 
     data = await asyncio.gather(
-        classifyArray(arrays.get("artist"), "str", "artist"),
-        classifyArray(arrays.get("title"), "str", "title"),
-        classifyArray(arrays.get("album"), "str", "album"),
-        classifyArray(arrays.get("year"), "num", "year"),
-        classifyArray(arrays.get("track"), "num", "track"),
-        classifyArray(arrays.get("comments"), "str", "comments"),
-        classifyArray(arrays.get("albumArtist"), "str", "albumArtist"),
-        classifyArray(arrays.get("composer"), "str", "composer"),
-        classifyArray(arrays.get("discno"), "num", "discno"),
-        classifyArray(arrays.get("genre"), "str", "genre"),
+        classifyArrayFuzzy(arrays.get("artist"), "str", "artist"),
+        classifyArrayFuzzy(arrays.get("title"), "str", "title"),
+        classifyArrayFuzzy(arrays.get("album"), "str", "album"),
+        classifyArrayFuzzy(arrays.get("year"), "num", "year"),
+        classifyArrayFuzzy(arrays.get("track"), "num", "track"),
+        classifyArrayFuzzy(arrays.get("comments"), "str", "comments"),
+        classifyArrayFuzzy(arrays.get("albumArtist"), "str", "albumArtist"),
+        classifyArrayFuzzy(arrays.get("composer"), "str", "composer"),
+        classifyArrayFuzzy(arrays.get("discno"), "num", "discno"),
+        classifyArrayFuzzy(arrays.get("genre"), "str", "genre"),
     )
 
-    finClassifiedResult["totalSuccesfulCalls"] = totalSuccesfulCalls
-    finClassifiedResult["data"] = data
+    for tup in data:
+        finClassifiedResult[f"{tup[0]}"] = tup[1]
 
-    return finClassifiedResult
+    # # finClassifiedResult["totalSuccesfulCalls"] = totalSuccesfulCalls
+
+    return finClassifiedResult, totalSuccesfulCalls, totalMechanismCalls
 
 
-async def classifyArray(array, type, key):
+async def classifyArrayFuzzy(arr, classType, classifierType):
+    # Use fuzzy string searching vie Leviathan String Searching
+    arr1 = np.array(arr)
+
+    if classType == "num":
+        arr1 = np.array([str(num) for num in arr])
+
+    matrix = cdist(
+        arr1.reshape(-1, 1), arr1.reshape(-1, 1), lambda x, y: ratio(x[0], y[0])
+    )
+    df = DataFrame(data=matrix, index=arr1, columns=arr1)
+    classifierOptions = df.sum().to_dict()
+
+    max_key = next(iter(classifierOptions))
+    for key in classifierOptions:
+        if classifierOptions[key] > classifierOptions[max_key]:
+            max_key = key
+
+    value = None
+    if classType == "num":
+        value = int(max_key)
+    else:
+        value = max_key
+
+    dict = {"classifierOptions": classifierOptions, "value": value}
+
+    if classifierType=="genre":
+        pprint(classifierOptions)
+
+    return classifierType, dict
+
+
+async def classifyArrayVectorStringSimilarity(array, classType, key):
     # Use fuzzy string searching or vector string similarity matching
 
     # Iterate thru each value check its ratio with the others. One with highest value wins - use fuzzy search
@@ -199,5 +245,5 @@ async def classifyArray(array, type, key):
     # - if cannot be determined (like 4, 5) - return suggested value + error code yellow (medium)
     # - if cannot be classified (NaN) - return no value w/ error code red
 
-    print(array)
-    return (array, type)
+    # print(array)
+    return (array, classType)
