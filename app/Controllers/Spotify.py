@@ -15,7 +15,7 @@ async def getFields(artist, title):
 
     successfulFieldCalls = 2 # artist and title
     dict = {}
-    dict['composer'] = "" # unavailable in spotipy
+    dict['composer'] = None # unavailable in spotipy
     query = title + " " + artist
 
     try:
@@ -40,7 +40,7 @@ async def getFields(artist, title):
 
         song_title = results['name']
         if song_title:
-            dict['song_title'] = song_title
+            dict['title'] = song_title
             # successfulFieldCalls += 1
 
         year = results['album']["release_date"]
@@ -74,8 +74,9 @@ async def getFields(artist, title):
         
     except:
         print("Error Occured: Data nulled")
-        artist = song_title = album = year = track = genre = comments = albumArtist = composer = disc_number = None
+        dict['artist'] = dict['song_title'] = dict['album'] = dict['year'] = dict['track'] = dict['genre'] = dict['comments'] = dict['albumArtist'] = dict['composer'] = dict['disc_number'] = None
         successfulFieldCalls = 0
 
     dict['successfulCalls'] = successfulFieldCalls
+    dict['artist'] = artist
     return dict
