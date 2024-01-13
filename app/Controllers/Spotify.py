@@ -74,7 +74,7 @@ async def getFields(artist, title):
         
     except:
         print("Error Occured: Data nulled")
-        dict['artist'] = dict['song_title'] = dict['album'] = dict['year'] = dict['track'] = dict['genre'] = dict['comments'] = dict['albumArtist'] = dict['composer'] = dict['disc_number'] = None
+     
         successfulFieldCalls = 0
 
     dict['successfulCalls'] = successfulFieldCalls

@@ -145,7 +145,7 @@ async def classify(dict):
 
         if x.get("track") != None:
             totalSuccesfulCalls += 1
-            arrays["track"].append(int(x.get("track")))
+            arrays["track"].append((x.get("track")))
 
         if x.get("comments") != None:
             totalSuccesfulCalls += 1

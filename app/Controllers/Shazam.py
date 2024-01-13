@@ -1,15 +1,27 @@
 import requests
+from dotenv import load_dotenv
+import os
 
-async def getFields(artist, title):
- url = "https://shazam.p.rapidapi.com/search"
+# # Load environment variables from .env file
+# load_dotenv()
 
- querystring = {"term":title,"locale":"en-US","offset":"0","limit":"1"}
+# # Get the API key from the environment variables
+# shazam_api_key = os.getenv("RAPIDAPI_KEY")
 
- headers = {
-	"X-RapidAPI-Key": "3f4bfea3edmshb24e5a367ae4d97p1a3366jsn30c957ba2712",
-	"X-RapidAPI-Host": "shazam.p.rapidapi.com"
- }
+# # Ensure the API key is present
+# if not shazam_api_key:
+#     raise ValueError("API key is missing in the .env file.")
 
- response = requests.get(url, headers=headers, params=querystring)
+# url = "https://shazam.p.rapidapi.com/search"
+# title = "Hey Jude"
+# artist = "The Beatles"
+# querystring = {"term": title, "locale": "en-US", "offset": "0", "limit": "1"}
 
- print(response.json())
+# headers = {
+#     "X-RapidAPI-Key": shazam_api_key,
+#     "X-RapidAPI-Host": "shazam.p.rapidapi.com"
+# }
+
+# response = requests.get(url, headers=headers, params=querystring)
+
+# print(response.json())

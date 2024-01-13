@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from classifier import classifier, classify
+from classifier import classifier
 from Image import GetAlbumArt
 
 app = FastAPI()

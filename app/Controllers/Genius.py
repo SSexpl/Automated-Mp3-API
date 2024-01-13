@@ -1,12 +1,18 @@
 import requests
+import os
 from pprint import pprint 
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+key=os.environ.get('Genius Token')
 async def getFields(artist, title):
-    base_url =await  "https://api.genius.com/search?q="+title+"+"+artist
+    base_url ="https://api.genius.com/search?q="+title+"+"+artist
     headers = {
         "Authorization": "Bearer AXAstvuuSIYEwyM_Ja6OdMeFkZHNGzgtMm6AQL57zz3VPFBDPTwvkZY0E0cCnmXO"
     }
     successfields=2
-    response= requests.get(base_url,headers=headers)
+    response=  requests.get(base_url,headers=headers)
     dict = {}
     # Check if the request was successful (status code 200)
     try:
@@ -24,9 +30,7 @@ async def getFields(artist, title):
          if(trial["release_date_components"]['year']):
              dict['year']=trial["release_date_components"]['year']
              successfields+=1
-         if( res['response']['hits'][0]['type']):
-             dict['genre']=res['response']['hits'][0]['type']
-             successfields+=1
+       
     
        
 
@@ -34,7 +38,7 @@ async def getFields(artist, title):
     except:
         # Print an error message if the request was not successful
         print("Error Occured: Data nulled")
-        artist = song_title = album = year = track = genre = comments = albumArtist = composer = disc_number = None
+        dict['artist'] = dict['song_title'] = dict['album'] = dict['year'] = dict['track'] = dict['genre'] = dict['comments'] = dict['albumArtist'] = dict['composer'] = dict['disc_number'] = None
         successfulFieldCalls = 0
         
     dict['successfulCalls'] =  successfields
